@@ -1,6 +1,7 @@
 package Whmpus;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 import Whmpus.Constants.Directions;
@@ -39,6 +40,36 @@ class World {
     	
     }
     
+    public ArrayList<Coordinates> getAdjacentCells(Coordinates playerPosition) {
+    	
+    	ArrayList<Coordinates> dangerZoneList = new ArrayList<Coordinates>();
+    	
+    	int playerRow = playerPosition.getRow();
+    	int playerCol = playerPosition.getCol();
+    	
+    	
+    	if(playerCol - 1 >= 1) {
+    		Coordinates eastCell = new Coordinates(playerRow, playerCol - 1);
+    		dangerZoneList.add(eastCell);
+    	}
+    	
+    	if(playerCol + 1 <= colCount) {
+    		Coordinates westCell = new Coordinates(playerRow, playerCol + 1);
+    		dangerZoneList.add(westCell);
+    	}
+    	
+    	if(playerRow - 1 >= 1) {
+    		Coordinates southCell = new Coordinates(playerRow - 1, playerCol);
+    		dangerZoneList.add(southCell);
+    	}
+    	
+    	if(playerRow + 1 <= rowCount) {
+    		Coordinates northCell = new Coordinates(playerRow + 1, playerCol);
+    		dangerZoneList.add(northCell);
+    	}
+    	
+    	return dangerZoneList;
+    }
     
     private boolean checkIfAdjacent(Coordinates playerPosition, Coordinates mapElement) {
     	
@@ -65,13 +96,19 @@ class World {
     	int playerCol = playerPosition.getCol();
     	Directions direction = playerPosition.getDirection();
     	
-    	if(direction == Directions.EAST && playerCol == colCount) {
+    	if ( playerRow < 0 || playerRow > rowCount || playerCol < 0 || playerCol > colCount) {
+    		
     		hasBump = true;
-    	} else if (direction == Directions.WEST && playerCol == 1) {
+    		return hasBump;
+    	}
+    	
+    	if(direction == Directions.EAST && playerCol >= colCount) {
     		hasBump = true;
-    	} else if (direction == Directions.SOUTH && playerRow == 1) {
+    	} else if (direction == Directions.WEST && playerCol <= 1) {
     		hasBump = true;
-    	} else if (direction == Directions.NORTH && playerRow == rowCount) {
+    	} else if (direction == Directions.SOUTH && playerRow <= 1) {
+    		hasBump = true;
+    	} else if (direction == Directions.NORTH && playerRow >= rowCount) {
     		hasBump = true;
     	}
     	

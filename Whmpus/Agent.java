@@ -17,7 +17,7 @@ public class Agent {
 
     boolean goldCollected = false;
     int runs = 0;
-    
+    int maxRuns = 10;
     public Agent(World world ) {
     	this.world = world;
     	currentPosition = new Coordinates(1,1,Directions.EAST);
@@ -25,12 +25,11 @@ public class Agent {
     }
     
     void moveAgent() {
-        while (runs < 6) {
+        while (runs < maxRuns) {
 
         	runs += 1;
         	
-        	System.out.print("From: ");
-        	currentPosition.printPosition();
+        	Coordinates oldPosition = new Coordinates(currentPosition);
         	
         	Percept currentPercept = world.getPercept(currentPosition);
         	knowledgeBase.put(currentPosition, currentPercept);
@@ -39,6 +38,8 @@ public class Agent {
         	
         	currentPosition = getNextMove(currentPosition);
         	
+        	System.out.print("From: ");
+        	oldPosition.printPosition();
         	System.out.print(" To: ");
         	currentPosition.printPosition();
         	System.out.println();
@@ -52,32 +53,61 @@ public class Agent {
     	
     	if (percept.glitter) {
     		goldCollected = true;
+    		System.out.print("GOT GOLD>> ");
+    		
     		//BACK TO START
     		
     	} else {
     		
-    		if (percept.breez || percept.stench) {
+    		if ( percept.stench) {
+    			
+    			Coordinates safeLocation = confirmDanger(playerPosition);
+    			
+    			if (safeLocation != null) {
+    				System.out.print("Got Safe Spot>> ");
+    				return safeLocation;
+    			} else {
+    				System.out.print("No Safe Spot>> ");
+    				return backTrack();
+    			}
+    			
+    		} else if (percept.breez) {
     		    
-        		Coordinates playerPositionCopy = playerPosition;
+    			
+        		Coordinates playerPositionCopy = new Coordinates(playerPosition);
         		
-        		if ( checkVisited(playerPositionCopy.moveAhead())) {
-        			System.out.print("Found in visited ahead.");
+        		playerPositionCopy.moveAhead();
+        		
+//        		playerPosition.printPosition();
+//        		System.out.print(" Move Ahead ");
+//        		playerPositionCopy.printPosition();
+//        		System.out.println();
+        		
+        		if (checkVisited(playerPositionCopy)) {
+        			System.out.print("Found Ahead>> ");
         			return currentPosition.moveAhead();
         			
         		} else if ( getVisitedAdjecentCell(playerPosition) != null) {
         			
-        			System.out.print("Found onother coordinate adjacent that's visisted. ");
+        			System.out.print("Found Adjacent>> ");
         			return getVisitedAdjecentCell(playerPosition);
         			
         		} else {
-        			System.out.print(" <<Back tracing>> ");
-            		return backTrack();
-            		
+        			
+        			Coordinates safeLocation = confirmDanger(playerPosition);
+        			
+        			if (safeLocation != null) {
+        				return safeLocation;
+        			} else {
+        				return backTrack();
+        			}
+        			
         		}
         		
         	} else {
-        		System.out.print(" <<Unvisited spot>> ");
-        		return getUnvisitedSpot(playerPosition);
+        		Coordinates unvisitedCoordinate = getUnvisitedSpot(playerPosition);
+        		System.out.print("Unvisited Spot>> ");
+        		 return unvisitedCoordinate;
         	}
     	}
     	
@@ -87,9 +117,7 @@ public class Agent {
     }
     
     private Coordinates backTrack() {
-        //Move back one step
-   	
-    
+   
         moves.remove(moves.size() - 1); 
      
         Coordinates basePoint = new Coordinates(moves.get(moves.size() - 1));
@@ -102,19 +130,16 @@ public class Agent {
     	
     	Coordinates basePositionCopy = new Coordinates(basePosition);
     	
-    	
-    	
     	if (!checkVisited(basePositionCopy.moveAhead())) {
     		
     		Percept percept = world.getPercept(basePositionCopy);
     		if (!percept.bump) {
-    		return basePosition.moveAhead();
+    		return basePositionCopy;
     		} 
     	}
     	
     	basePositionCopy = new Coordinates(basePosition);
-    	
-    	if (!checkVisited(basePosition.moveEast())) {
+    	if (!checkVisited(basePositionCopy.moveEast())) {
     		
     		Percept percept = world.getPercept(basePositionCopy);
     		if (!percept.bump) {
@@ -123,7 +148,7 @@ public class Agent {
     	}
     	
     	basePositionCopy = new Coordinates(basePosition);
-    	if (!checkVisited(basePosition.moveNorth())) {
+    	if (!checkVisited(basePositionCopy.moveNorth())) {
     		Percept percept = world.getPercept(basePositionCopy);
     		if (!percept.bump) {
     		return basePositionCopy;
@@ -131,7 +156,6 @@ public class Agent {
     	}
     	
     	basePositionCopy = new Coordinates(basePosition);
-    	basePositionCopy.moveSouth();
     	if (!checkVisited(basePositionCopy.moveSouth())) {
     		Percept percept = world.getPercept(basePositionCopy);
     		if (!percept.bump) {
@@ -140,7 +164,6 @@ public class Agent {
     	}
     	
     	basePositionCopy = new Coordinates(basePosition);
-    	basePositionCopy.moveWest();
     	if (!checkVisited(basePositionCopy.moveWest())) {
     		Percept percept = world.getPercept(basePositionCopy);
     		if (!percept.bump) {
@@ -154,37 +177,40 @@ public class Agent {
     
     
     Coordinates getRandomDirection(Coordinates playerPosition) {
+    	
+ 
+    	boolean hasBump = true;
     	Coordinates playerPositionCopy = new Coordinates(playerPosition);
-    	
-    	int Min = 1, Max = 4;
-    	int random = Min + (int)(Math.random() * ((Max - Min) + 1));
-    	
-    	switch (random) {
-		case 1:
-			playerPositionCopy.moveNorth();
-			
-			break;
-		case 2:
-			playerPositionCopy.moveEast();
+    	while(hasBump) {
+    		
+    		playerPositionCopy = new Coordinates(playerPosition);
+    		
+    		int Min = 1, Max = 4;
+        	int random = Min + (int)(Math.random() * ((Max - Min) + 1));
+        	
+        	switch (random) {
+    		case 1:
+    			playerPositionCopy.moveNorth();
+    			break;
+    		case 2:
+    			playerPositionCopy.moveEast();
+    			break;
+    		case 3:
+    			playerPositionCopy.moveWest();
+    			break;
+    		case 4:
+    			playerPositionCopy.moveSouth();
+    			break;
+    		default:
+    			break;
+    		}
+        	
+        	Percept percept = world.getPercept(playerPositionCopy);
 
-		case 3:
-			playerPositionCopy.moveWest();
-
-		case 4:
-			playerPositionCopy.moveSouth();
-			
-		default:
-			break;
-		}
-    	
-    	Percept percept = world.getPercept(playerPositionCopy);
-    	if(!percept.bump) {
-    		return playerPositionCopy;
-    	} else {
-    		getRandomDirection(playerPositionCopy);
+        	hasBump = percept.bump;
     	}
-    	
-    	return playerPosition;
+    			
+    	return playerPositionCopy;
     	
     }
     
@@ -197,10 +223,56 @@ public class Agent {
     }
     
     
+    private Coordinates confirmDanger(Coordinates playerPosition) {
+    	
+    	Coordinates playerPositionCopy = new Coordinates(playerPosition);
+    	
+    	ArrayList<Coordinates> adjacentCellList = world.getAdjacentCells(playerPositionCopy);
+    	
+    	boolean isRisky = true;
+    	
+    	for (Coordinates possibleDangerCoordinate: adjacentCellList) {
+    		isRisky = checkPreviousPercepts(possibleDangerCoordinate);
+    		if (!isRisky) {
+    			
+    			
+    			possibleDangerCoordinate.direction = playerPosition.determineDirection(possibleDangerCoordinate);
+    			
+    			return possibleDangerCoordinate;
+    		}
+    	}
+    	
+    	return null;
+    	
+    }
+    
+    boolean checkPreviousPercepts(Coordinates possibleDangerCoordinate) {
+    	
+    	boolean isRisky = true;
+    	
+    	ArrayList<Coordinates> perceptLocationList = world.getAdjacentCells(possibleDangerCoordinate);
+    	
+    	for (Coordinates perceptLocation: perceptLocationList) {
+    		
+    		if (knowledgeBase.containsKey(perceptLocation)) {
+        		Percept positionPercept = knowledgeBase.get(perceptLocation);
+        		
+        		if(!(positionPercept.breez && positionPercept.stench)) {
+        			return false;
+        		}
+        		
+    		}
+    	}
+    	
+    	return isRisky;
+    
+    }
+    
+    
     
     private Coordinates getVisitedAdjecentCell(Coordinates playerPosition) {
     	
-    	Coordinates playerPositionCopy = playerPosition;
+    	Coordinates playerPositionCopy = new Coordinates(playerPosition);
     	
     	//EAST
     	if(checkVisited(playerPositionCopy.moveEast())) {
@@ -208,19 +280,19 @@ public class Agent {
     	}
     	
     	//WEST
-    	playerPositionCopy = playerPosition;
+    	playerPositionCopy = new Coordinates(playerPosition);
     	if(checkVisited(playerPositionCopy.moveWest())) {
     		return playerPositionCopy;
     	}
     	
     	//NORTH
-    	playerPositionCopy = playerPosition;
+    	playerPositionCopy = new Coordinates(playerPosition);
     	if(checkVisited(playerPositionCopy.moveNorth())) {
     		return playerPositionCopy;
     	}
     	
     	//SOUTH
-    	playerPositionCopy = playerPosition;
+    	playerPositionCopy = new Coordinates(playerPosition);
     	if(checkVisited(playerPositionCopy.moveSouth())) {
     		return playerPositionCopy;
     	}
@@ -235,15 +307,8 @@ public class Agent {
     /////
     
     private boolean checkVisited(Coordinates playerCoordinates) {
-    	    	
-//    	System.out.println("\n\nVisited: ");
-//    	
-//    	for(Coordinates visit: visited) {
-//    		visit.printPosition();
-//    		System.out.print(", ");
-//    	}
-//    	System.out.println("\n");
-    	
+    	//playerCoordinates.printPosition();
+    	//System.out.println(visited.contains(playerCoordinates));
     	return visited.contains(playerCoordinates);
     }
 

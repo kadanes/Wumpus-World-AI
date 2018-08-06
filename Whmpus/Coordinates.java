@@ -115,7 +115,29 @@ class Coordinates {
     	return this;
     }
     
-    void printPosition() {
+    public Directions determineDirection(Coordinates end) {
+    	
+    	
+    	int startRow = row;
+    	int startCol = col;
+    	
+    	int endRow = end.getRow();
+    	int endCol = end.getCol();
+    	
+    	if (endCol+1 == startCol) {
+    		return Directions.EAST;
+    	} else if (endCol - 1 == startCol) {
+    		return Directions.WEST;
+    	} else if ( endRow - 1 == startRow ) {
+    		return Directions.SOUTH;
+    	} else if ( endRow + 1 == startRow ) {
+    		return Directions.NORTH;
+    	}
+    	
+    	return Directions.NONE;
+    }
+    
+    public void printPosition() {
     	System.out.print("("+row+","+col+","+direction+")");
     }
 }
