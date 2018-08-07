@@ -1,5 +1,8 @@
 package Whmpus;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import Whmpus.Constants.Directions;
 
 class Coordinates {
@@ -125,16 +128,30 @@ class Coordinates {
     	int endCol = end.getCol();
     	
     	if (endCol+1 == startCol) {
-    		return Directions.EAST;
-    	} else if (endCol - 1 == startCol) {
     		return Directions.WEST;
-    	} else if ( endRow - 1 == startRow ) {
+    	} else if (endCol-1 == startCol) {
+    		return Directions.EAST;
+    	} else if ( endRow-1 == startRow ) {
     		return Directions.SOUTH;
-    	} else if ( endRow + 1 == startRow ) {
+    	} else if ( endRow+1 == startRow ) {
     		return Directions.NORTH;
     	}
     	
     	return Directions.NONE;
+    }
+    
+    JSONObject creatDirectionJSON() {
+    	JSONObject coordinateObject = new JSONObject();
+    	try {
+			coordinateObject.put("row",row);
+	    	coordinateObject.put("col",col);
+	    	coordinateObject.put("direction",direction);
+	    	return coordinateObject;
+	    	
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+    	return null;
     }
     
     public void printPosition() {

@@ -2,7 +2,7 @@ package Whmpus;
 
 class Percept {
 
-    final boolean stench;
+    boolean stench;
     final boolean breez;
     final boolean glitter;
     final boolean bump;

@@ -1,0 +1,269 @@
+<html>
+
+<head>
+    <style>
+        td {
+            width: 120px;
+            height: 120px;
+            background-color:darksalmon;
+        }
+
+        
+        .bg1 {
+            width: 50px;
+            height: 50px;
+            top: 20;
+            position: absolute;
+        }
+        
+
+    </style>
+</head>
+
+<body>
+
+
+
+<div>
+
+    
+
+</div>
+
+</body>
+
+<script>
+
+    
+    
+    var monsterCoords = {"row":3,"col":3}
+    var holeCoords =  {"row":3,"col":2}
+    var goldCoords = {"row":4,"col":4}
+
+    var playerCoords = {"route":[{"row":1,"col":1}]} 
+    var possibelWhumpus = {"locations":[]}
+    var possibelHole = {"locations":[]}
+
+    var elements = {
+        "monster":"monster",
+        "player": "player",
+        "hole": "hole",
+        "coin": "coin",
+        "arrow": "arrow"
+    }
+    
+    var resources = {
+        "player": "./player.png", 
+        "monster":"./monster.png", 
+        "hole":"./hole.png", 
+        "coin": "./coin.png",
+        "arrow": "./arrow.png",
+    }
+
+    var background = {
+        "hole" : "./wind.png",
+        "monster" : "./stench.png",
+    }
+
+    var map
+    var goldTaken = false;
+    var whmpusKilled = false
+    var goldPosition
+    var whmpusPosition
+
+    var positions
+    var maxMoves 
+
+    emptyTable()
+    
+
+    function displayMap(mapObject) {
+        
+        map = mapObject
+        var pits = mapObject.pits
+
+        if(!goldTaken) {
+            goldPosition = mapObject.gold
+            setContent(elements.coin,goldPosition.row,goldPosition.col)
+        }
+
+        if (!whmpusKilled){
+            whmpusPosition = mapObject.whmpus
+            setContent(elements.monster,whmpusPosition.row,whmpusPosition.col)
+            setCellBackground(elements.monster,whmpusPosition.row,whmpusPosition.col)
+
+        }
+
+        for(index in pits) {
+            pit = pits[index]
+            setContent(elements.hole,pit.row,pit.col)
+            setCellBackground(elements.hole,pit.row,pit.col)
+        }
+        
+    }
+
+    
+   function displayPlayer(playerPositions) {
+
+       positions = playerPositions.moves
+
+       maxMoves = positions.length
+
+    movePlayer(maxMoves-1);
+        
+    //    for(index in positions) {
+        
+    //     var currentPosition = positions[index]
+    
+    //     console.log("Move: "+index)
+    //     console.log(currentPosition)
+            
+            
+    //     emptyTable()
+    //     displayMap(map)
+    //     setContent(elements.player,currentPosition.row,currentPosition.col)
+          
+    //    } 
+
+    }
+
+    function movePlayer(i) {
+        if (i < 0) return;
+
+        setTimeout(function () {
+
+            j = maxMoves - 1 - i
+
+            var currentPosition = positions[j]
+            console.log("Move: "+j)
+            
+            if (checkCoordinatesEqual(currentPosition,whmpusPosition)) {
+                whmpusKilled = true
+            }
+
+            if (checkCoordinatesEqual(currentPosition,goldPosition)) {
+                goldTaken = true
+            }
+
+            emptyTable()
+            
+            
+
+            displayMap(map)
+            setContent(elements.player,currentPosition.row,currentPosition.col)
+                    
+            movePlayer(--i);
+
+        }, 500);
+    }
+
+    function checkCoordinatesEqual(point1,point2) {
+        if((point1.row == point2.row) && (point1.col == point2.col)) {
+            return true
+        }
+        return false
+    }
+
+    readJSON("game-map.txt",displayMap)
+    readJSON("player-moves.txt",displayPlayer)
+
+    function readJSON(file,callback){
+        var rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file, true);
+        rawFile.onreadystatechange = function ()
+        {
+            if(rawFile.readyState === 4)
+            {
+                if(rawFile.status === 200 || rawFile.status == 0)
+                {
+                    var text = rawFile.responseText
+                    var json = JSON.parse(text);
+                    
+                    callback(json)
+                }
+            }
+        }
+        rawFile.send();
+    }
+
+    function emptyTable() {
+
+        document.body.innerHTML = ""
+
+        var row = 1,col = 1;
+        var table = document.createElement("table")
+        for(row = 4; row >= 1; row-=1) {
+            var tr = document.createElement("tr")
+            for(col = 1; col <= 4; col+=1) {
+                var td = document.createElement("td")
+                td.id = row+""+col
+                var div = document.createElement("div")
+                div.className = "bg1"
+                td.appendChild(div)
+                tr.appendChild(td)
+            }
+
+            table.appendChild(tr)
+        }
+
+        document.body.appendChild(table);
+    }
+
+    function setContent(element,row,col) {
+
+        if(element == elements.player){
+            console.log(row+" "+col)
+        }
+    
+        var td = document.getElementById(row+""+col);
+        
+        var graphic = "<img src= "+resources[element]+" width='60%' height='60%' >"
+        td.innerHTML += graphic ;
+    
+    }
+
+    function setCellBackground(elementName,row,col) {
+        
+        var td
+        if(row - 1 >= 1 ) {
+            td = document.getElementById(row-1+""+col);
+            setSizedBackground()
+        }
+
+        if(row + 1 <= 4 ) {
+            td = document.getElementById((row+1)+""+col);
+            setSizedBackground()
+        }
+
+        if(col + 1 <= 4 ) {
+            td = document.getElementById(row+""+(col+1));
+            setSizedBackground()
+        }
+
+        if(col - 1 >= 1 ) {
+            td = document.getElementById(row+""+(col-1));
+            setSizedBackground()
+        }
+        
+        function setSizedBackground() {
+            
+            switch(elementName) {
+                case elements.hole:
+                td = document.getElementById(row+""+col).getElementsByClassName("bg1")[0];
+                td.style.backgroundImage = "url('"+background[elementName]+"')" 
+                td.style.backgroundRepeat = "no-repeat"
+                td.style.backgroundSize = "contain"
+                break;
+
+                case elements.monster:
+                td.style.backgroundPosition = "bottom right"
+                td.style.backgroundImage = "url('"+background[elementName]+"')" 
+                td.style.backgroundRepeat = "no-repeat"
+                td.style.backgroundSize = "35%"
+                break;
+            }   
+        }
+    }
+</script>
+
+</html>
