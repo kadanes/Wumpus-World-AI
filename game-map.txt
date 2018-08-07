@@ -1,1 +1,1 @@
-{"gold":{"col":2,"row":3,"direction":"NONE"},"pits":[{"col":3,"row":3,"direction":"NONE"},{"col":4,"row":4,"direction":"NONE"},{"col":3,"row":1,"direction":"NONE"}],"whmpus":{"col":1,"row":3,"direction":"NONE"}}
+{"gold":{"col":3,"row":2,"direction":"NONE"},"pits":[{"col":1,"row":3,"direction":"NONE"},{"col":3,"row":3,"direction":"NONE"},{"col":4,"row":4,"direction":"NONE"}],"whmpus":{"col":3,"row":1,"direction":"NONE"}}

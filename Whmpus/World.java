@@ -19,22 +19,23 @@ class World {
 
     private boolean isWhmpusDead = false;
     private boolean isGoldTaken = false;
-    
-    private Coordinates whmpusPosition = new Coordinates(3,1);
-    private Coordinates goldPosition = new Coordinates(3,2);
-    private Coordinates[] pitPositions = {
-        new Coordinates(3 ,3),
-        new Coordinates(4,4),
-        new Coordinates(1,3)
-    };
-//    World 2
-//    private Coordinates whmpusPosition = new Coordinates(1,3);
-//    private Coordinates goldPosition = new Coordinates(2,3);
+  
+//    //World 1
+//    private Coordinates whmpusPosition = new Coordinates(3,1);
+//    private Coordinates goldPosition = new Coordinates(3,2);
 //    private Coordinates[] pitPositions = {
-//        new Coordinates(3 ,1),
-//        new Coordinates(3,3),
-//        new Coordinates(4,4)
+//        new Coordinates(3 ,3),
+//        new Coordinates(4,4),
+//        new Coordinates(1,3)
 //    };
+    //World 2
+    private Coordinates whmpusPosition = new Coordinates(1,3);
+    private Coordinates goldPosition = new Coordinates(2,3);
+    private Coordinates[] pitPositions = {
+        new Coordinates(3 ,1),
+        new Coordinates(3,3),
+        new Coordinates(4,4)
+    };
 
     
     public void exportMap() {

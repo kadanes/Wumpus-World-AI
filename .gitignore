@@ -2,6 +2,7 @@
 .settings/
 .classpath
 Whmpus/wumpus.png
+Whmpus/*.class
 game-map.json
 player-moves.txt
 player-moves.json
