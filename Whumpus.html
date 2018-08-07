@@ -5,44 +5,57 @@
         td {
             width: 120px;
             height: 120px;
-            background-color:darksalmon;
+            background-color:#91a082;
         }
 
-        
-        .bg1 {
-            width: 50px;
-            height: 50px;
-            top: 20;
-            position: absolute;
+        table {
+            margin-left: auto;
+            margin-right: auto;
         }
-        
+        h1 {
+            text-align: center;
+            color: cornsilk;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
 
+        body {
+            background-color:#262626;
+        }
+
+        td {
+            text-align: center;
+        }
+
+        #score {
+            margin-left: auto;
+            margin-right: auto;
+            height: 100px;
+            width: 600px;
+            text-align: center;
+            font-size: 2cm;
+            color: #ffda6d;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+        }
+
+        #score::before {
+            content: "Score ";
+            color: #f7d570cd;
+
+        }
     </style>
 </head>
 
 <body>
+   
+                
+        <h1>Whmpus World - AI Agent</h1>        
 
-
-
-<div>
-
-    
-
-</div>
+        <div id="score">0</div>
+        <div id="board"/>
 
 </body>
 
 <script>
-
-    
-    
-    var monsterCoords = {"row":3,"col":3}
-    var holeCoords =  {"row":3,"col":2}
-    var goldCoords = {"row":4,"col":4}
-
-    var playerCoords = {"route":[{"row":1,"col":1}]} 
-    var possibelWhumpus = {"locations":[]}
-    var possibelHole = {"locations":[]}
 
     var elements = {
         "monster":"monster",
@@ -70,12 +83,12 @@
     var whmpusKilled = false
     var goldPosition
     var whmpusPosition
+    var score = 0
 
     var positions
     var maxMoves 
 
     emptyTable()
-    
 
     function displayMap(mapObject) {
         
@@ -102,29 +115,10 @@
         
     }
 
-    
    function displayPlayer(playerPositions) {
-
-       positions = playerPositions.moves
-
-       maxMoves = positions.length
-
-    movePlayer(maxMoves-1);
-        
-    //    for(index in positions) {
-        
-    //     var currentPosition = positions[index]
-    
-    //     console.log("Move: "+index)
-    //     console.log(currentPosition)
-            
-            
-    //     emptyTable()
-    //     displayMap(map)
-    //     setContent(elements.player,currentPosition.row,currentPosition.col)
-          
-    //    } 
-
+        positions = playerPositions.moves
+        maxMoves = positions.length
+        movePlayer(maxMoves-1);
     }
 
     function movePlayer(i) {
@@ -132,23 +126,24 @@
 
         setTimeout(function () {
 
+            score -= 1
+            document.getElementById("score").innerHTML = score
             j = maxMoves - 1 - i
 
             var currentPosition = positions[j]
-            console.log("Move: "+j)
             
             if (checkCoordinatesEqual(currentPosition,whmpusPosition)) {
                 whmpusKilled = true
             }
 
             if (checkCoordinatesEqual(currentPosition,goldPosition)) {
+                score += 1000
+                document.getElementById("score").innerHTML = score
                 goldTaken = true
             }
 
             emptyTable()
             
-            
-
             displayMap(map)
             setContent(elements.player,currentPosition.row,currentPosition.col)
                     
@@ -179,6 +174,8 @@
                     var text = rawFile.responseText
                     var json = JSON.parse(text);
                     
+                    console.log(json)
+
                     callback(json)
                 }
             }
@@ -188,7 +185,8 @@
 
     function emptyTable() {
 
-        document.body.innerHTML = ""
+        var container = document.getElementById("board") 
+        container.innerHTML = ""
 
         var row = 1,col = 1;
         var table = document.createElement("table")
@@ -206,15 +204,12 @@
             table.appendChild(tr)
         }
 
-        document.body.appendChild(table);
+        container.appendChild(table);
     }
 
     function setContent(element,row,col) {
 
-        if(element == elements.player){
-            console.log(row+" "+col)
-        }
-    
+      
         var td = document.getElementById(row+""+col);
         
         var graphic = "<img src= "+resources[element]+" width='60%' height='60%' >"
@@ -249,17 +244,14 @@
             
             switch(elementName) {
                 case elements.hole:
-                td = document.getElementById(row+""+col).getElementsByClassName("bg1")[0];
-                td.style.backgroundImage = "url('"+background[elementName]+"')" 
-                td.style.backgroundRepeat = "no-repeat"
-                td.style.backgroundSize = "contain"
+                td.style.backgroundColor = "#7392ff"
                 break;
 
                 case elements.monster:
-                td.style.backgroundPosition = "bottom right"
+                td.style.backgroundPosition = "center"
                 td.style.backgroundImage = "url('"+background[elementName]+"')" 
                 td.style.backgroundRepeat = "no-repeat"
-                td.style.backgroundSize = "35%"
+                td.style.backgroundSize = "45%"
                 break;
             }   
         }

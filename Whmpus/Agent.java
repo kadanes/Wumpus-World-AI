@@ -61,10 +61,12 @@ public class Agent {
         }
         
         if(goldCollected) {
+        	        	
+        	System.out.println();
+        	
         	goBackToStart();
         	
-        	moveList.put(moves.get(0).creatDirectionJSON());
-                	
+                        	
         	JSONObject movesJSONObject = new JSONObject();
         	try {
         		
@@ -117,7 +119,12 @@ public class Agent {
     			}
     			
     		} else if (percept.breez) {
-    		    
+    		        			
+    			Coordinates safeLocation = confirmDanger(playerPosition);
+    			
+    			if (safeLocation != null) {
+    				return safeLocation;
+    			}
     			
         		Coordinates playerPositionCopy = new Coordinates(playerPosition);
         		
@@ -133,15 +140,7 @@ public class Agent {
         			return getVisitedAdjecentCell(playerPosition);
         			
         		} else {
-        			
-        			Coordinates safeLocation = confirmDanger(playerPosition);
-        			
-        			if (safeLocation != null) {
-        				return safeLocation;
-        			} else {
         				return backTrack();
-        			}
-        			
         		}
         		
         	} else {
@@ -156,15 +155,84 @@ public class Agent {
     }
     
     void goBackToStart() {
-    	while(moves.size() != 2) {
-    		Coordinates position = backTrack();
-    		position.printPosition();
+    	
+    	Coordinates position = popMove();
+    	position.printPosition();
+    	    	
+    	while(moves.size() > 0) {
+    		
+    		findSouthWestTiles(position);
+    		
+    		position = popMove();
+    		
     		moveList.put(position.creatDirectionJSON());
-    		System.out.println();
+
+    		if (position.equals(new Coordinates(1,1))) {
+    			return;
+    		}
     	}
-    	moves.get(0).printPosition();
-    	System.out.println();
     }
+    
+    
+    private void findSouthWestTiles(Coordinates playerPosition) {
+    	
+    	System.out.print("Finding adjecent of: ");
+    	playerPosition.printPosition();
+    	System.out.println();
+    	
+    	int index;
+    	for(index = moves.size() - 1; index >= 0; index -= 1 ) {
+    		
+    		Coordinates possibleShortcutTile = moves.get(index);
+    		
+    		if((possibleShortcutTile.getRow() == playerPosition.getRow() - 1 )&& (possibleShortcutTile.getCol() == playerPosition.getCol())) {
+        		System.out.print("Got South: ");
+    			possibleShortcutTile.printPosition();
+    			System.out.println();
+    			
+    			break;
+    		} else if ((possibleShortcutTile.getCol() == playerPosition.getCol() - 1) && (possibleShortcutTile.getRow() == playerPosition.getRow())) {
+        		System.out.print("Got West: ");
+    			possibleShortcutTile.printPosition();
+    			System.out.println();
+    			
+    			break;
+    		}	
+    	}
+    	
+    	for (int remIndex = moves.size() - 1; remIndex > index; remIndex -= 1) {
+    		
+    		moves.remove(remIndex);
+       	}
+    	
+//    	System.out.print("Positions after removing redundant: ");
+//    	for(Coordinates move: moves) {
+//    		move.printPosition();
+//    	}
+//    	System.out.println();
+        	
+    }
+    
+    private Coordinates popMove() {
+    	Coordinates topMove = moves.remove(moves.size() - 1);
+    	return topMove;
+    }
+    
+    private Coordinates backTrack() {
+    	   
+    	if(moves.size() > 0) {
+    		moves.remove(moves.size() - 1); 
+	     
+	        Coordinates basePoint = new Coordinates(moves.get(moves.size() - 1));
+       
+	        return basePoint;
+    	}
+    	
+    	return null;
+        
+    }
+    
+    
     
     private Coordinates	locateWhmpus() {
     	
@@ -213,16 +281,7 @@ public class Agent {
     	return null;
     }
     
-    private Coordinates backTrack() {
-   
-        moves.remove(moves.size() - 1); 
-     
-        Coordinates basePoint = new Coordinates(moves.get(moves.size() - 1));
-       
-        return basePoint;
-        
-    }
-    
+  
     private Coordinates getUnvisitedSpot(Coordinates basePosition) {
     	
     	Coordinates basePositionCopy = new Coordinates(basePosition);
