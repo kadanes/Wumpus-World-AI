@@ -168,8 +168,8 @@
         return false
     }
 
-    readJSON("game-map.txt",displayMap)
-    readJSON("player-moves.txt",displayPlayer)
+    readJSON("game-map.json",displayMap)
+    readJSON("player-moves.json",displayPlayer)
 
     function readJSON(file,callback){
         var rawFile = new XMLHttpRequest();

@@ -75,7 +75,7 @@ public class Agent {
     	try {
     		
 			movesJSONObject.put("moves", moveList);
-			FileWriter file = new FileWriter("./player-moves.txt");
+			FileWriter file = new FileWriter("./player-moves.json");
 			
 			file.write(movesJSONObject.toString());
 			file.close();

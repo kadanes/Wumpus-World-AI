@@ -61,7 +61,7 @@ class World {
 		  	map.put("whmpus", whmpusPosition.creatDirectionJSON());
 	    	map.put("gold", goldPosition.creatDirectionJSON());
 	    	
-	    	FileWriter file = new FileWriter("./game-map.txt");
+	    	FileWriter file = new FileWriter("./game-map.json");
 	    	file.write(map.toString());
 	    	file.close();
 	    			
