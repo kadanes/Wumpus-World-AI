@@ -20,22 +20,29 @@ class World {
     private boolean isWhmpusDead = false;
     private boolean isGoldTaken = false;
   
-//    //World 1
-//    private Coordinates whmpusPosition = new Coordinates(3,1);
-//    private Coordinates goldPosition = new Coordinates(3,2);
-//    private Coordinates[] pitPositions = {
-//        new Coordinates(3 ,3),
-//        new Coordinates(4,4),
-//        new Coordinates(1,3)
-//    };
-    //World 2
-    private Coordinates whmpusPosition = new Coordinates(1,3);
-    private Coordinates goldPosition = new Coordinates(2,3);
+    //World 1
+    private Coordinates whmpusPosition = new Coordinates(3,1);
+    private Coordinates goldPosition = new Coordinates(3,2);
     private Coordinates[] pitPositions = {
-        new Coordinates(3 ,1),
-        new Coordinates(3,3),
-        new Coordinates(4,4)
+        new Coordinates(3 ,3),
+        new Coordinates(4,4),
+        new Coordinates(1,3)
     };
+//    //World 2
+//    private Coordinates whmpusPosition = new Coordinates(1,3);
+//    private Coordinates goldPosition = new Coordinates(2,3);
+//    private Coordinates[] pitPositions = {
+//        new Coordinates(3 ,1),
+//        new Coordinates(3,3),
+//        new Coordinates(4,4)
+//    };
+//  //World 3
+//  private Coordinates whmpusPosition = new Coordinates(1,3);
+//  private Coordinates goldPosition = new Coordinates(4,3);
+//  private Coordinates[] pitPositions = {
+//      new Coordinates(3 ,1),
+//      new Coordinates(4,4)
+//  };
 
     
     public void exportMap() {
@@ -91,19 +98,19 @@ class World {
     	
     	boolean hasStench = false;
     	boolean hasGlitter = false;
-    	boolean hasBreez = false;
+    	boolean hasbreeze = false;
     	boolean hasBump = false;
     	
     	for (Coordinates pitPosition: pitPositions) {
-    		hasBreez = checkIfAdjacent(playerPosition, pitPosition);
-    		if (hasBreez) 
+    		hasbreeze = checkIfAdjacent(playerPosition, pitPosition);
+    		if (hasbreeze) 
     			break;
     	}
-    	hasStench = checkIfAdjacent(playerPosition, whmpusPosition)  && !isWhmpusDead;
+    	hasStench = checkIfAdjacent(playerPosition, whmpusPosition) && !isWhmpusDead;
     	hasGlitter = playerPosition.equals(goldPosition);
     	hasBump = checkBump(playerPosition);
     	
-    	return new Percept(hasBreez,hasBump,hasGlitter,hasStench,playerPosition);
+    	return new Percept(hasbreeze,hasBump,hasGlitter,hasStench,playerPosition);
     	
     }
     
@@ -178,13 +185,13 @@ class World {
     		return hasBump;
     	}
     	
-    	if(direction == Directions.EAST && playerCol >= colCount) {
+    	if(direction == Directions.EAST && playerCol > colCount) {
     		hasBump = true;
-    	} else if (direction == Directions.WEST && playerCol <= 1) {
+    	} else if (direction == Directions.WEST && playerCol < 1) {
     		hasBump = true;
-    	} else if (direction == Directions.SOUTH && playerRow <= 1) {
+    	} else if (direction == Directions.SOUTH && playerRow < 1) {
     		hasBump = true;
-    	} else if (direction == Directions.NORTH && playerRow >= rowCount) {
+    	} else if (direction == Directions.NORTH && playerRow > rowCount) {
     		hasBump = true;
     	}
     	

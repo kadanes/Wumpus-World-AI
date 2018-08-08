@@ -127,13 +127,13 @@ class Coordinates {
     	int endRow = end.getRow();
     	int endCol = end.getCol();
     	
-    	if (endCol+1 == startCol) {
+    	if (endCol == startCol - 1) {
     		return Directions.WEST;
-    	} else if (endCol-1 == startCol) {
+    	} else if (endCol == startCol + 1) {
     		return Directions.EAST;
-    	} else if ( endRow-1 == startRow ) {
+    	} else if ( endRow == startRow - 1 ) {
     		return Directions.SOUTH;
-    	} else if ( endRow+1 == startRow ) {
+    	} else if ( endRow == startRow + 1 ) {
     		return Directions.NORTH;
     	}
     	

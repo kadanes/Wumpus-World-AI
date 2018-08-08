@@ -60,6 +60,7 @@
     var elements = {
         "monster":"monster",
         "player": "player",
+        "slayer": "slayer",
         "hole": "hole",
         "coin": "coin",
         "arrow": "arrow"
@@ -71,6 +72,7 @@
         "hole":"./hole.png", 
         "coin": "./coin.png",
         "arrow": "./arrow.png",
+        "slayer": "./shoot.png"
     }
 
     var background = {
@@ -131,7 +133,9 @@
             j = maxMoves - 1 - i
 
             var currentPosition = positions[j]
-            
+            var nextIndex = j + 1 >= maxMoves ? j : j + 1;
+            var nexPosition = positions[nextIndex]
+
             if (checkCoordinatesEqual(currentPosition,whmpusPosition)) {
                 whmpusKilled = true
             }
@@ -145,10 +149,15 @@
             emptyTable()
             
             displayMap(map)
-            setContent(elements.player,currentPosition.row,currentPosition.col)
-                    
-            movePlayer(--i);
+            
+            const aboutToKill = !whmpusKilled && checkCoordinatesEqual(nexPosition,whmpusPosition)
 
+            if(aboutToKill) {
+                setContent(elements.slayer,currentPosition.row,currentPosition.col)
+            } else {
+                setContent(elements.player,currentPosition.row,currentPosition.col)
+            }      
+            movePlayer(--i);
         }, 500);
     }
 
@@ -173,9 +182,7 @@
                 {
                     var text = rawFile.responseText
                     var json = JSON.parse(text);
-                    
-                    console.log(json)
-
+                
                     callback(json)
                 }
             }
@@ -212,8 +219,9 @@
       
         var td = document.getElementById(row+""+col);
         
-        var graphic = "<img src= "+resources[element]+" width='60%' height='60%' >"
-        td.innerHTML += graphic ;
+        var graphic = "<img src= "+resources[element]+" width='auto' height='60%' >"
+        td.style.backgroundImage = ""
+        td.innerHTML += graphic 
     
     }
 

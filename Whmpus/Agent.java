@@ -24,7 +24,7 @@ public class Agent {
 
     boolean goldCollected = false;
     int runs = 0;
-    int maxRuns = 10;
+    int maxRuns = 50;
 
     
     public Agent(World world ) {
@@ -45,7 +45,10 @@ public class Agent {
         	Percept currentPercept = world.getPercept(currentPosition);
         	knowledgeBase.put(currentPosition, currentPercept);
         	moves.add(new Coordinates(currentPosition));
-        	visited.add(new Coordinates(currentPosition));
+        	
+        	Coordinates visitedCoordinate = new Coordinates(currentPosition); 
+        	visitedCoordinate.direction	= Directions.NONE;
+        	visited.add(visitedCoordinate);
         	
         	currentPosition = getNextMove(currentPosition);
         	
@@ -65,26 +68,26 @@ public class Agent {
         	System.out.println();
         	
         	goBackToStart();
-        	
-                        	
-        	JSONObject movesJSONObject = new JSONObject();
-        	try {
-        		
-				movesJSONObject.put("moves", moveList);
-				FileWriter file = new FileWriter("./player-moves.txt");
-    			file.write(movesJSONObject.toString());
-    			file.close();
-    			
-    			world.exportMap();
-    			
-			} catch (JSONException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-        	
-        	
+        	  	
         }
+        
+        JSONObject movesJSONObject = new JSONObject();
+    	try {
+    		
+			movesJSONObject.put("moves", moveList);
+			FileWriter file = new FileWriter("./player-moves.txt");
+			
+			file.write(movesJSONObject.toString());
+			file.close();
+			
+			world.exportMap();
+			
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
     }
     
     
@@ -103,8 +106,10 @@ public class Agent {
     			Coordinates possibleWhmpusLocation = locateWhmpus();
     			
     			if (possibleWhmpusLocation != null) {
-    				
+    				System.out.print("Whmpus>>");
     				possibleWhmpusLocation.direction = playerPosition.determineDirection(possibleWhmpusLocation);
+    				world.killWhmpus();
+    				
     				return possibleWhmpusLocation;
     			}
     			
@@ -118,11 +123,12 @@ public class Agent {
     				return backTrack();
     			}
     			
-    		} else if (percept.breez) {
+    		} else if (percept.breeze) {
     		        			
     			Coordinates safeLocation = confirmDanger(playerPosition);
     			
     			if (safeLocation != null) {
+    				System.out.print("Safe Location (Pit)>>");
     				return safeLocation;
     			}
     			
@@ -204,12 +210,6 @@ public class Agent {
     		
     		moves.remove(remIndex);
        	}
-    	
-//    	System.out.print("Positions after removing redundant: ");
-//    	for(Coordinates move: moves) {
-//    		move.printPosition();
-//    	}
-//    	System.out.println();
         	
     }
     
@@ -231,57 +231,84 @@ public class Agent {
     	return null;
         
     }
-    
-    
-    
+       
     private Coordinates	locateWhmpus() {
     	
     	ArrayList<Percept> whmpusPerceptList = new ArrayList<Percept>();
+    	Coordinates whmpusLocation = null;
     	
     	for(Percept percept: knowledgeBase.values()) {
     		if(percept.stench) {
+ 
     			whmpusPerceptList.add(percept);
     		}
     	}
     	
-    	if(whmpusPerceptList.size() >= 3) {
+    	if (whmpusPerceptList.size() == 2) {
     		
-    		Coordinates tile1 = whmpusPerceptList.get(0).position;
-    		Coordinates tile2 = whmpusPerceptList.get(1).position;
-    		Coordinates tile3 = whmpusPerceptList.get(2).position;
+    		System.out.println("Found 2 percepts with stench");
     		
-    		int whmpusRow = 0;
-    		int whmpusCol = 0;
+    		Coordinates firstPerceptLocation = new Coordinates(whmpusPerceptList.get(0).position);
+    		Coordinates secondPerceptLocation = new Coordinates(whmpusPerceptList.get(1).position);
     		
-    		if(tile1.getRow() == tile2.getRow()) {
-    			whmpusRow = tile1.getRow();
-    			whmpusCol = tile3.getCol();
-    		} else if (tile1.getRow() == tile3.getRow()) {
-    			whmpusRow = tile1.getRow();
-    			whmpusCol = tile2.getCol();
-    		} else if (tile1.getCol() == tile2.getCol()) {
-    			whmpusCol = tile1.getCol();
-    			whmpusRow = tile3.getRow();
-    		} else if (tile1.getCol() == tile3.getCol()) {
-    			whmpusCol = tile1.getCol();
-    			whmpusRow = tile2.getRow();
+    		Coordinates firstPossibleWhmpusLocation = new Coordinates(firstPerceptLocation.getRow(),secondPerceptLocation.getCol()); 
+    		Coordinates secondPossibleWhmpusLocation = new Coordinates(firstPerceptLocation.getCol(),secondPerceptLocation.getRow()); 
+    		
+    		if (checkVisited(firstPossibleWhmpusLocation)) {
+    			whmpusLocation = secondPossibleWhmpusLocation;
+    		} else if (checkVisited(secondPossibleWhmpusLocation)) {
+    		
+    			whmpusLocation = firstPossibleWhmpusLocation;
     		}
-    		
-    		if (whmpusCol != 0 && whmpusRow!=0) {
-    			
-    			
-    			for(Percept percept: knowledgeBase.values()) {
-    	    		percept.stench = false;
-    	    	}
-    			
-    			return new Coordinates(whmpusRow, whmpusCol);	
-    		}
-    	}
+       	}
     	
-    	return null;
+//    	if(whmpusPerceptList.size() >= 3) {
+//    		
+//    		Coordinates tile1 = whmpusPerceptList.get(0).position;
+//    		Coordinates tile2 = whmpusPerceptList.get(1).position;
+//    		Coordinates tile3 = whmpusPerceptList.get(2).position;
+//    		
+//    		int whmpusRow = 0;
+//    		int whmpusCol = 0;
+//    		
+//    		if(tile1.getRow() == tile2.getRow()) {
+//    			whmpusRow = tile1.getRow();
+//    			whmpusCol = tile3.getCol();
+//    		} else if (tile1.getRow() == tile3.getRow()) {
+//    			whmpusRow = tile1.getRow();
+//    			whmpusCol = tile2.getCol();
+//    		} else if (tile1.getCol() == tile2.getCol()) {
+//    			whmpusCol = tile1.getCol();
+//    			whmpusRow = tile3.getRow();
+//    		} else if (tile1.getCol() == tile3.getCol()) {
+//    			whmpusCol = tile1.getCol();
+//    			whmpusRow = tile2.getRow();
+//    		}
+//    		
+//    		if (whmpusCol != 0 && whmpusRow!=0) {
+//    			
+//    			
+//    			for(Percept percept: knowledgeBase.values()) {
+//    	    		percept.stench = false;
+//    	    	}
+//    			
+//    			return new Coordinates(whmpusRow, whmpusCol);	
+//    		}
+//    	}
+    	
+    	if (whmpusLocation != null) {
+    		clearStenchPercept();
+    	}
+    	return whmpusLocation;
+    }
+
+  
+    private void clearStenchPercept() {
+    	for(Percept percept: knowledgeBase.values()) {
+    		percept.stench = false;
+    	}    	
     }
     
-  
     private Coordinates getUnvisitedSpot(Coordinates basePosition) {
     	
     	Coordinates basePositionCopy = new Coordinates(basePosition);
@@ -333,7 +360,6 @@ public class Agent {
     
     Coordinates getRandomDirection(Coordinates playerPosition) {
     	
- 
     	boolean hasBump = true;
     	Coordinates playerPositionCopy = new Coordinates(playerPosition);
     	while(hasBump) {
@@ -386,7 +412,7 @@ public class Agent {
     	boolean isRisky = true;
     	
     	for (Coordinates possibleDangerCoordinate: adjacentCellList) {
-    		isRisky = checkPreviousPercepts(possibleDangerCoordinate);
+    		isRisky = checkPreviousPercepts(possibleDangerCoordinate,playerPositionCopy);
     		if (!isRisky) {
     	   			
     			possibleDangerCoordinate.direction = playerPosition.determineDirection(possibleDangerCoordinate);
@@ -397,7 +423,7 @@ public class Agent {
     	return null;
     }
     
-    boolean checkPreviousPercepts(Coordinates possibleDangerCoordinate) {
+    boolean checkPreviousPercepts(Coordinates possibleDangerCoordinate, Coordinates checkInitPosition) {
     	
     	boolean isRisky = true;
     	
@@ -405,13 +431,29 @@ public class Agent {
     	
     	for (Coordinates perceptLocation: perceptLocationList) {
     		
-    		if (knowledgeBase.containsKey(perceptLocation)) {
+    		if (!perceptLocation.equals(checkInitPosition) && knowledgeBase.containsKey(perceptLocation)) {
         		Percept positionPercept = knowledgeBase.get(perceptLocation);
         		
-        		if(!(positionPercept.breez && positionPercept.stench)) {
-        			return false;
-        		}
         		
+        		Percept triggredPercept = knowledgeBase.get(checkInitPosition);
+        		
+        		if(triggredPercept.stench && !triggredPercept.breeze) {
+        			if(!positionPercept.stench) {
+        				isRisky = false;
+        				return isRisky;
+        			}
+        		} else if (triggredPercept.breeze && !triggredPercept.stench) {
+        			if(!positionPercept.breeze) {
+        				isRisky = false;
+        				return isRisky;
+            		}
+        		} else if (triggredPercept.breeze && triggredPercept.stench) {
+        			if(!positionPercept.breeze && !positionPercept.stench) {
+        				isRisky = false;
+        				return isRisky;
+            		}
+        		}
+        	
     		}
     	}
     	
@@ -450,10 +492,11 @@ public class Agent {
     }
      
    
-    private boolean checkVisited(Coordinates playerCoordinates) {
-    	//playerCoordinates.printPosition();
-    	//System.out.println(visited.contains(playerCoordinates));
-    	return visited.contains(playerCoordinates);
+    private boolean checkVisited(Coordinates playerPosition) {
+    	
+    	Coordinates playerPositionCopy = new Coordinates(playerPosition);
+    	playerPositionCopy.direction = Directions.NONE;
+    	return visited.contains(playerPositionCopy);
     }
 
 }
