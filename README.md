@@ -1,4 +1,4 @@
-# Whmpus-World-AI-Agent
+# Wumpus World AI
 An AI Agent based Whmpus World Game.
 
 Feel free to clone and modify. Add your own ui elements, go berzerk! Also have written Whmpus like that throughout the code, deal with it! :P
