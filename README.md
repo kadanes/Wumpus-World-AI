@@ -11,6 +11,6 @@ Game Play:
 ![World 2](/World%202.png?raw=true "Clipped output")
 ### To Do:
 - Write Comments
-- Add animation for Whmpus Kill
+- Add animation for Wumpus Kill
 - Try shuffling order of different options to find new tile
 - Create a user mode?
